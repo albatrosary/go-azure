@@ -1,50 +1,33 @@
-package main
+package sample
 
 import (
-    "github.com/ant0ine/go-json-rest"
-    "log"
-    "net/http"
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-// 入力の定義
-type postHelloInput struct {
-    Name string
+func init() {
+	r := mux.NewRouter()
+	r.HandleFunc("/api/users/{id:[0-9]+}", UserHandler).Methods("GET")
+	r.Host("localhost")
+	http.Handle("/", r)
 }
 
-// 出力の定義
-type postHelloOutput struct {
-    Result string
+type Reply struct {
+	Message string `json:"message"`
 }
 
-func postHello(w *rest.ResponseWriter, req *rest.Request) {
-    input := postHelloInput{}
-    err := req.DecodeJsonPayload(&input)
+func UserHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
 
-    // そもそも入力の形式と違うとここでエラーになる
-    if err != nil {
-        rest.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+	reply := Reply{
+		Message: "id(" + id + ")を取得しました",
+	}
 
-    // 適当なバリデーション
-    if input.Name == "" {
-        rest.Error(w, "Name is required", 400)
-        return
-    }
+	json, _ := json.Marshal(reply)
 
-    log.Printf("%#v", input)
-
-    // 結果を返す部分
-    w.WriteJson(&postHelloOutput{
-        "Hello, " + input.Name,
-    })
-}
-
-func main() {
-    handler := rest.ResourceHandler{}
-    handler.SetRoutes(
-        rest.Route{"POST", "/api/hello", postHello},
-    )
-    log.Printf("Server started")
-    http.ListenAndServe(":"+os.Getenv("HTTP_PLATFORM_PORT"), nil)
+	fmt.Fprint(w, string(json))
 }
