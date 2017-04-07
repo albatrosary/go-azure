@@ -21,7 +21,7 @@ module.exports = module.exports.toString();
 /***/ 136:
 /***/ (function(module, exports) {
 
-module.exports = "<h1>\n  {{title.Body}}\n</h1>\n"
+module.exports = "<h1>\n  {{title}}\n</h1>\n"
 
 /***/ }),
 
@@ -142,9 +142,8 @@ var AppComponent = (function () {
         this.hello = hello;
     }
     AppComponent.prototype.ngOnInit = function () {
-        var _this = this;
         this.hello.get()
-            .then(function (response) { return _this.title = response; })
+            .then(function (response) { return console.log(response); })
             .catch(function (error) { return console.log(error); });
     };
     return AppComponent;
