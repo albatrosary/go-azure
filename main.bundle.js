@@ -21,7 +21,7 @@ module.exports = module.exports.toString();
 /***/ 136:
 /***/ (function(module, exports) {
 
-module.exports = "<h1>\n  {{title}}\n</h1>\n"
+module.exports = "<h1>\n  {{title.Body}}\n</h1>\n"
 
 /***/ }),
 
@@ -140,10 +140,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var AppComponent = (function () {
     function AppComponent(hello) {
         this.hello = hello;
+        this.title = {
+            Body: "hoge"
+        };
     }
     AppComponent.prototype.ngOnInit = function () {
+        var _this = this;
         this.hello.get()
-            .then(function (response) { return console.log(response); })
+            .then(function (response) { return _this.title = response; })
             .catch(function (error) { return console.log(error); });
     };
     return AppComponent;
