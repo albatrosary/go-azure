@@ -23,7 +23,7 @@ func main() {
 	api.SetApp(router)
 
 	http.Handle("/api/", http.StripPrefix("/api", api.MakeHandler()))
-	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("."))))
+	http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("."))))
 
 	http.ListenAndServe(":"+os.Getenv("HTTP_PLATFORM_PORT"), nil)
 }
