@@ -1,33 +1,28 @@
-package sample
+package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
+	"os"
 
-	"github.com/gorilla/mux"
+	"github.com/ant0ine/go-json-rest/rest"
 )
 
-func init() {
-	r := mux.NewRouter()
-	r.HandleFunc("/api/users/{id:[0-9]+}", UserHandler).Methods("GET")
-	r.Host("localhost")
-	http.Handle("/", r)
-}
+func main() {
+	api := rest.NewApi()
+	api.Use(rest.DefaultDevStack...)
 
-type Reply struct {
-	Message string `json:"message"`
-}
-
-func UserHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	reply := Reply{
-		Message: "id(" + id + ")を取得しました",
+	router, err := rest.MakeRouter(
+		rest.Get("/message", func(w rest.ResponseWriter, req *rest.Request) {
+			w.WriteJson(map[string]string{"Body": "Hello World!"})
+		}),
+	)
+	if err != nil {
+		log.Fatal(err)
 	}
+	api.SetApp(router)
 
-	json, _ := json.Marshal(reply)
-
-	fmt.Fprint(w, string(json))
+	http.Handle("/api/", http.StripPrefix("/api", api.MakeHandler()))
+	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("."))))
+	http.ListenAndServe(":"+os.Getenv("HTTP_PLATFORM_PORT"), nil)
 }
